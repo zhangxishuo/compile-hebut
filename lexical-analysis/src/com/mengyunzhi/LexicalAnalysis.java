@@ -1,5 +1,6 @@
 package com.mengyunzhi;
 
+import com.mengyunzhi.entity.Location;
 import com.mengyunzhi.entity.Word;
 import com.mengyunzhi.entity.Symbol;
 import com.mengyunzhi.enums.SymbolType;
@@ -8,6 +9,9 @@ import com.mengyunzhi.enums.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 词法分析程序
+ */
 public class LexicalAnalysis {
 
     public static boolean currentOperatorState = false;
@@ -15,15 +19,23 @@ public class LexicalAnalysis {
     private static int currentState = 0;
     private static int finalState   = -1;
 
+    // 单词列表
     private static List<Word> wordList = new ArrayList<>();
 
+    // 临时字符串存储
     private static StringBuilder string = new StringBuilder();
+
+    // 临时单词存储
     private static Word word = null;
 
+    // 分析数字时相关数据
     private static long w = 0;
     private static long e = 0;
     private static long n = 0;
     private static long p = 0;
+
+    // 当前位置
+    private static Location currentLocation;
 
     /**
      * 获取单词列表
@@ -35,9 +47,11 @@ public class LexicalAnalysis {
     /**
      * 判断字符的类型
      */
-    public static Symbol getSymbol(char i) {
+    public static Symbol getSymbol(char i, int row, int col) {
         Symbol symbol = new Symbol();
         symbol.setValue(i);
+        Location location = new Location(row, col);
+        symbol.setLocation(location);
         if (i >= '0' && i <= '9') {
             symbol.setSymbolType(SymbolType.DIGIT);
         } else if ((i >= 'a' && i <= 'z') || (i >= 'A' && i <= 'Z')) {
@@ -75,6 +89,9 @@ public class LexicalAnalysis {
         return symbolType.equals(SymbolType.LT) || symbolType.equals(SymbolType.GT) || symbolType.equals(SymbolType.EQ) || symbolType.equals(SymbolType.COLON);
     }
 
+    /**
+     * 分析当前字符
+     */
     public static int execute(Symbol symbol) {
         SymbolType symbolType = symbol.getSymbolType();
         switch (currentState) {
@@ -82,78 +99,81 @@ public class LexicalAnalysis {
                 currentState = 0;
                 currentOperatorState = false;
 
-            case 0: switch (symbolType) {
-                case LETTER:
-                    currentState = 1;
-                    string.append(symbol.getValue());
-                    break;
+            case 0:
+                // 获取当前位置
+                currentLocation = symbol.getLocation();
+                switch (symbolType) {
+                    case LETTER:
+                        currentState = 1;
+                        string.append(symbol.getValue());
+                        break;
 
-                case DIGIT:
-                    currentState = 2;
-                    w = symbol.getValue() - '0';
-                    e = 1;
-                    n = 0;
-                    p = 0;
-                    break;
+                    case DIGIT:
+                        currentState = 2;
+                        w = symbol.getValue() - '0';
+                        e = 1;
+                        n = 0;
+                        p = 0;
+                        break;
 
-                case LT:
-                    currentState = 3;
-                    currentOperatorState = true;
-                    break;
+                    case LT:
+                        currentState = 3;
+                        currentOperatorState = true;
+                        break;
 
-                case GT:
-                    currentState = 4;
-                    currentOperatorState = true;
-                    break;
+                    case GT:
+                        currentState = 4;
+                        currentOperatorState = true;
+                        break;
 
-                case COLON:
-                    currentState = 5;
-                    currentOperatorState = true;
-                    break;
+                    case COLON:
+                        currentState = 5;
+                        currentOperatorState = true;
+                        break;
 
-                case EQ:
-                    currentState = finalState;
-                    word = new Word();
-                    word.setType(Type.EQ);
-                    break;
+                    case EQ:
+                        currentState = finalState;
+                        word = new Word(currentLocation);
+                        word.setType(Type.EQ);
+                        break;
 
-                case PLUS:
-                    currentState = finalState;
-                    word = new Word();
-                    word.setType(Type.PL);
-                    wordList.add(word);
-                    break;
+                    case PLUS:
+                        currentState = finalState;
+                        word = new Word(currentLocation);
+                        word.setType(Type.PL);
+                        wordList.add(word);
+                        break;
 
-                case MINUS:
-                    currentState = finalState;
-                    word = new Word();
-                    word.setType(Type.MI);
-                    wordList.add(word);
-                    break;
+                    case MINUS:
+                        currentState = finalState;
+                        word = new Word(currentLocation);
+                        word.setType(Type.MI);
+                        wordList.add(word);
+                        break;
 
-                case MULTIPLY:
-                    currentState = finalState;
-                    word = new Word();
-                    word.setType(Type.MU);
-                    wordList.add(word);
-                    break;
+                    case MULTIPLY:
+                        currentState = finalState;
+                        word = new Word(currentLocation);
+                        word.setType(Type.MU);
+                        wordList.add(word);
+                        break;
 
-                case DIVIDE:
-                    currentState = finalState;
-                    word = new Word();
-                    word.setType(Type.DI);
-                    wordList.add(word);
-                    break;
+                    case DIVIDE:
+                        currentState = finalState;
+                        word = new Word(currentLocation);
+                        word.setType(Type.DI);
+                        wordList.add(word);
+                        break;
 
-                case OTHER:
-                    currentState = finalState;
-                    break;
+                    case OTHER:
+                        currentState = finalState;
+                        break;
 
-                default:
-                    currentState = finalState;
-                    return -1;
+                    default:
+                        currentState = finalState;
+                        return -1;
 
-            } break;
+                } break;
 
             case 1: switch (symbolType) {
                 case LETTER:
@@ -163,7 +183,7 @@ public class LexicalAnalysis {
 
                 default:
                     currentState = finalState;
-                    word = new Word();
+                    word = new Word(currentLocation);
                     Type type = checkKeyword();
                     if (type.equals(Type.ID)) {
                         word.setType(Type.ID);
@@ -192,7 +212,7 @@ public class LexicalAnalysis {
                         }
                     default:
                         currentState = finalState;
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.INTEGER);
                         word.setValue(w);
                         wordList.add(word);
@@ -204,17 +224,17 @@ public class LexicalAnalysis {
                 currentState = finalState;
                 switch (symbolType) {
                     case EQ:
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.LE);
                         wordList.add(word);
                         break;
                     case GT:
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.NE);
                         wordList.add(word);
                         break;
                     default:
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.LT);
                         wordList.add(word);
                         break;
@@ -225,12 +245,12 @@ public class LexicalAnalysis {
                 currentState = finalState;
                 switch (symbolType) {
                     case EQ:
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.GE);
                         wordList.add(word);
                         break;
                     default:
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.GT);
                         wordList.add(word);
                         break;
@@ -241,7 +261,7 @@ public class LexicalAnalysis {
                 switch (symbolType) {
                     case EQ:
                         currentState = finalState;
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.IS);
                         wordList.add(word);
                         break;
@@ -263,7 +283,7 @@ public class LexicalAnalysis {
                         }
                     default:
                         currentState = finalState;
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.REAL);
                         word.setValue(w * Math.pow(10, e * p - n));
                         wordList.add(word);
@@ -303,7 +323,7 @@ public class LexicalAnalysis {
                         break;
                     default:
                         currentState = finalState;
-                        word = new Word();
+                        word = new Word(currentLocation);
                         word.setType(Type.REAL);
                         word.setValue(w * Math.pow(10, e * p - n));
                         wordList.add(word);
@@ -314,6 +334,9 @@ public class LexicalAnalysis {
         return 0;
     }
 
+    /**
+     * 判断当前字符串是否是关键字
+     */
     private static Type checkKeyword() {
         String value = string.toString().toUpperCase();
         Type type = null;
