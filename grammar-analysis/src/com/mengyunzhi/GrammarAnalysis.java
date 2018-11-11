@@ -4,6 +4,7 @@ import com.mengyunzhi.adapter.TypeAdapter;
 import com.mengyunzhi.config.GrammarConfig;
 import com.mengyunzhi.entity.Grammar;
 import com.mengyunzhi.entity.Location;
+import com.mengyunzhi.entity.Symbol;
 import com.mengyunzhi.entity.Word;
 import com.mengyunzhi.enums.LegalSignType;
 import com.mengyunzhi.enums.StateType;
@@ -79,6 +80,8 @@ public class GrammarAnalysis {
             if (result.equals("")) {
                 // 错误处理
                 System.out.println("ERROR");
+                // 提示错误位置
+                printErrorInfo(wordList.get(index));
                 // 终止循环
                 break;
             } else if (result.charAt(0) == 'S') {
@@ -137,5 +140,13 @@ public class GrammarAnalysis {
     private static String searchInTable(StateType stateType, LegalSignType legalSignType) {
         // 查表
         return analysisTable[stateType.getValue()][legalSignType.getValue()];
+    }
+
+    /**
+     * 错误处理
+     */
+    private static void printErrorInfo(Word word) {
+        // 打印错误信息
+        System.out.println("Error at: row " + word.getLocation().getRow() + " col " + word.getLocation().getCol() + " 错误语法 " + word.getValue());
     }
 }
