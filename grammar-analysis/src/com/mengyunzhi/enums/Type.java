@@ -25,5 +25,6 @@ public enum Type {
     MU,
     DI,
     LEFT_BRACKET,            // 左括号
-    RIGHT_BRACKET            // 右括号
+    RIGHT_BRACKET,           // 右括号
+    FINAL                    // 保留，内部使用
 }

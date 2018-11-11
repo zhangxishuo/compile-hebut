@@ -29,18 +29,50 @@ public class TypeAdapter {
             StateType.S15,
         };
 
+    /**
+     * 单词适配器
+     */
     public static LegalSignType wordAdapter(Word word) {
+
+        LegalSignType legalSignType = null;
 
         switch (word.getType()) {
             case INTEGER:
             case REAL:
             case ID:
-                return LegalSignType.IDENTITY;
+                legalSignType = LegalSignType.IDENTITY;
+                break;
             case PL:
-                return LegalSignType.PLUS;
+                legalSignType = LegalSignType.PLUS;
+                break;
+            case MI:
+                legalSignType = LegalSignType.MINUS;
+                break;
+            case MU:
+                legalSignType = LegalSignType.MULTIPLY;
+                break;
+            case DI:
+                legalSignType = LegalSignType.DIVIDE;
+                break;
+            case LEFT_BRACKET:
+                legalSignType = LegalSignType.LEFT_BRACKET;
+                break;
+            case RIGHT_BRACKET:
+                legalSignType = LegalSignType.RIGHT_BRACKET;
+                break;
+            case FINAL:
+                legalSignType = LegalSignType.FINAL;
+                break;
+            default:
+                System.out.println("对不起，当前类型不支持");
         }
+
+        return legalSignType;
     }
 
+    /**
+     * 状态适配器
+     */
     public static StateType stateAdapter(int state) {
         return stateTypes[state];
     }

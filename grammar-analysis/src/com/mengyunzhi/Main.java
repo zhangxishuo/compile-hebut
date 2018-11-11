@@ -20,10 +20,12 @@ public class Main {
      * 主入口
      */
     public static void main(String[] args) throws IOException {
+        // 调用词法分析获取单词串
         List<Word> wordList = getWordList();
-        for (Word word : wordList) {
-            System.out.println(word);
-        }
+        // 初始化语法分析
+        GrammarAnalysis.init(wordList);
+        // 分析语法
+        GrammarAnalysis.service();
     }
 
     /**

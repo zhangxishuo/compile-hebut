@@ -3,9 +3,11 @@ package com.mengyunzhi;
 import com.mengyunzhi.adapter.TypeAdapter;
 import com.mengyunzhi.config.GrammarConfig;
 import com.mengyunzhi.entity.Grammar;
+import com.mengyunzhi.entity.Location;
 import com.mengyunzhi.entity.Word;
 import com.mengyunzhi.enums.LegalSignType;
 import com.mengyunzhi.enums.StateType;
+import com.mengyunzhi.enums.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +46,12 @@ public class GrammarAnalysis {
         // 初始化单词串
         wordList = words;
         // 设置最长长度
-        max = words.size() - 1;
+        max = words.size();
+
+        // 添加终止符号
+        Word word = new Word(new Location(0, 0));
+        word.setType(Type.FINAL);
+        wordList.add(word);
 
         // 获取语法配置
         grammarList = GrammarConfig.getConfig();
@@ -56,18 +63,29 @@ public class GrammarAnalysis {
      * 语法分析逻辑
      */
     public static void service() {
-        // 查表
-        String result = searchInTable(stateTypeStack.peek(), wordList.get(index));
+        // 声明结果
+        String result;
         // 循环
         while (true) {
+            if (index > max) {
+                // 到末尾还未成功，报错
+                System.out.println("ERROR");
+                // 终止循环
+                break;
+            } else {
+                // 查表
+                result = searchInTable(stateTypeStack.peek(), wordList.get(index));
+            }
             if (result.equals("")) {
                 // 错误处理
+                System.out.println("ERROR");
+                // 终止循环
                 break;
             } else if (result.charAt(0) == 'S') {
                 // 如果当前为状态转换
                 // 截取需要转换到的状态
                 String subResult = result.substring(1);
-                int state = Integer.getInteger(subResult);
+                int state = Integer.valueOf(subResult);
                 // 状态入栈
                 stateTypeStack.add(TypeAdapter.stateAdapter(state));
                 // 字符入栈
@@ -78,7 +96,7 @@ public class GrammarAnalysis {
                 // 如果当前为规约
                 // 截取需要规约的表达式索引
                 String subResult = result.substring(1);
-                int indexInGrammarList = Integer.getInteger(subResult);
+                int indexInGrammarList = Integer.valueOf(subResult);
                 // 获取相应的语法
                 Grammar grammar = grammarList.get(indexInGrammarList);
                 // 获取需要出栈的元素数
@@ -91,9 +109,13 @@ public class GrammarAnalysis {
                 // 当前规约字符入栈
                 legalSignStack.push(grammar.getLegalSign());
                 // 从GOTO表查询下一个状态
-                result = searchInTable(stateTypeStack.peek(), legalSignStack.peek());
+                int next = Integer.valueOf(searchInTable(stateTypeStack.peek(), legalSignStack.peek()));
+                // 新状态入栈
+                stateTypeStack.push(TypeAdapter.stateAdapter(next));
             } else if (result.equals(ACCEPT_MESSAGE)) {
-                // 成功
+                // 语法分析成功
+                System.out.println("SUCCESS");
+                // 终止循环
                 break;
             }
         }
