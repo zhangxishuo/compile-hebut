@@ -33,4 +33,9 @@ public class Grammar {
     public void setString(String string) {
         this.string = string;
     }
+
+    @Override
+    public String toString() {
+        return legalSign.name() + "->" + string;
+    }
 }

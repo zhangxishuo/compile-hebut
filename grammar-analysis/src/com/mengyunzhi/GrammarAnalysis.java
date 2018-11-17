@@ -4,7 +4,6 @@ import com.mengyunzhi.adapter.TypeAdapter;
 import com.mengyunzhi.config.GrammarConfig;
 import com.mengyunzhi.entity.Grammar;
 import com.mengyunzhi.entity.Location;
-import com.mengyunzhi.entity.Symbol;
 import com.mengyunzhi.entity.Word;
 import com.mengyunzhi.enums.LegalSignType;
 import com.mengyunzhi.enums.StateType;
@@ -79,7 +78,7 @@ public class GrammarAnalysis {
             }
             if (result.equals("")) {
                 // 错误处理
-                System.out.println("ERROR");
+                System.out.println("分析失败");
                 // 提示错误位置
                 printErrorInfo(wordList.get(index));
                 // 终止循环
@@ -93,6 +92,11 @@ public class GrammarAnalysis {
                 stateTypeStack.add(TypeAdapter.stateAdapter(state));
                 // 字符入栈
                 legalSignStack.add(TypeAdapter.wordAdapter(wordList.get(index)));
+
+                // 打印状态转换信息
+                printStateChange(TypeAdapter.stateAdapter(state), wordList.get(index));
+                printStackInfo();
+
                 // 字符位置后移
                 index ++;
             } else if (result.charAt(0) == 'R') {
@@ -100,6 +104,7 @@ public class GrammarAnalysis {
                 // 截取需要规约的表达式索引
                 String subResult = result.substring(1);
                 int indexInGrammarList = Integer.valueOf(subResult);
+
                 // 获取相应的语法
                 Grammar grammar = grammarList.get(indexInGrammarList);
                 // 获取需要出栈的元素数
@@ -115,9 +120,13 @@ public class GrammarAnalysis {
                 int next = Integer.valueOf(searchInTable(stateTypeStack.peek(), legalSignStack.peek()));
                 // 新状态入栈
                 stateTypeStack.push(TypeAdapter.stateAdapter(next));
+
+                // 输出归约信息
+                printReduction(indexInGrammarList);
+                printStackInfo();
             } else if (result.equals(ACCEPT_MESSAGE)) {
                 // 语法分析成功
-                System.out.println("SUCCESS");
+                System.out.println("分析成功");
                 // 终止循环
                 break;
             }
@@ -148,5 +157,32 @@ public class GrammarAnalysis {
     private static void printErrorInfo(Word word) {
         // 打印错误信息
         System.out.println("Error at: row " + word.getLocation().getRow() + " col " + word.getLocation().getCol() + " 错误语法 " + word.getValue());
+    }
+
+    /**
+     * 状态转移信息
+     */
+    private static void printStateChange(StateType newStateType, Word word) {
+        System.out.println("状态转移: " + newStateType.name() + "入栈");
+        System.out.println("单词入栈: " + word.getType());
+    }
+
+    /**
+     * 归约信息
+     */
+    private static void printReduction(int index) {
+        System.out.println("使用产生式" + index + ": " + grammarList.get(index) + "进行归约");
+    }
+
+    /**
+     * 打印相关栈信息
+     */
+    private static void printStackInfo() {
+        System.out.print("状态栈: ");
+        stateTypeStack.forEach((value) -> System.out.print(value + " "));
+        System.out.println();
+        System.out.print("符号栈: ");
+        legalSignStack.forEach((value) -> System.out.print(value + " "));
+        System.out.println();
     }
 }
