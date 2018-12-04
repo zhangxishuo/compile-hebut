@@ -97,7 +97,9 @@ public class LexicalAnalysis {
                 || symbolType.equals(SymbolType.PLUS)
                 || symbolType.equals(SymbolType.MINUS)
                 || symbolType.equals(SymbolType.MULTIPLY)
-                || symbolType.equals(SymbolType.DIVIDE);
+                || symbolType.equals(SymbolType.DIVIDE)
+                || symbolType.equals(SymbolType.LEFT_BRACKET)
+                || symbolType.equals(SymbolType.RIGHT_BRACKET);
     }
 
     /**
