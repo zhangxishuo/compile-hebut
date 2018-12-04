@@ -103,8 +103,10 @@ public class GrammarAnalysis {
                 // 如果当前为规约
                 // 截取需要规约的表达式索引
                 String subResult = result.substring(1);
-                System.out.println(subResult);
                 int indexInGrammarList = Integer.valueOf(subResult);
+
+                // 调用语义分析程序
+                SemanticAnalysis.service(indexInGrammarList, wordList.get(index - 1));
 
                 // 获取相应的语法
                 Grammar grammar = grammarList.get(indexInGrammarList);
@@ -128,6 +130,8 @@ public class GrammarAnalysis {
             } else if (result.equals(ACCEPT_MESSAGE)) {
                 // 语法分析成功
                 System.out.println("分析成功");
+
+                SemanticAnalysis.printQuaternionList();
                 // 终止循环
                 break;
             }

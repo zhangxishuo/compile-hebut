@@ -86,7 +86,14 @@ public class LexicalAnalysis {
      * 判断当前类型是否是运算符类型
      */
     public static boolean checkOperatorOrNot(SymbolType symbolType) {
-        return symbolType.equals(SymbolType.LT) || symbolType.equals(SymbolType.GT) || symbolType.equals(SymbolType.EQ) || symbolType.equals(SymbolType.COLON);
+        return symbolType.equals(SymbolType.LT)
+                || symbolType.equals(SymbolType.GT)
+                || symbolType.equals(SymbolType.EQ)
+                || symbolType.equals(SymbolType.COLON)
+                || symbolType.equals(SymbolType.PLUS)
+                || symbolType.equals(SymbolType.MINUS)
+                || symbolType.equals(SymbolType.MULTIPLY)
+                || symbolType.equals(SymbolType.DIVIDE);
     }
 
     /**

@@ -22,10 +22,21 @@ public class Main {
     public static void main(String[] args) throws IOException {
         // 调用词法分析获取单词串
         List<Word> wordList = getWordList();
+        // 打印单词列表
+        printWordList(wordList);
         // 初始化语法分析
         GrammarAnalysis.init(wordList);
         // 分析语法
         GrammarAnalysis.service();
+    }
+
+    /**
+     * 打印词法分析后的单词列表
+     */
+    private static void printWordList(List<Word> wordList) {
+        for (Word word : wordList) {
+            System.out.println(word);
+        }
     }
 
     /**
